@@ -23,6 +23,73 @@ html,body{
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* LOADING OVERLAY STYLES */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, #0f172a 0%, #020617 100%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.loader-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    text-align: center;
+}
+
+.progress-container {
+    width: 260px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #4ade80);
+    border-radius: 10px;
+    transition: width 0.2s ease;
+}
+
+.loading-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+/* PLAY BUTTON (INITIALLY HIDDEN) */
+#startPlayBtn {
+    display: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+    cursor: pointer;
+    animation: pulsePlay 1.5s infinite alternate;
+}
+
+@keyframes pulsePlay {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+}
+
 /* GAME WRAPPER */
 .game-wrapper{
     position:fixed;
@@ -216,7 +283,7 @@ html,body{
     font-weight: bold;
     z-index: 30;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    display: flex;
+    display: none;
     align-items: center;
     gap: 6px;
     animation: pulse 1.5s infinite alternate;
@@ -440,7 +507,7 @@ html,body{
     height:85px;
     z-index:50;
     display:flex;
-    justify-space-between;
+    justify-content: space-between;
     align-items:flex-end;
     padding: 7px 10px;
     pointer-events:none;
@@ -491,7 +558,6 @@ html,body{
 }
 
 .btn-accel{
- 
     width:78px;
     background: rgba(22,163,74,.38);
 }
@@ -505,45 +571,23 @@ html,body{
     font-size:.52rem;
     margin-top:2px;
 }
-/* सही CSS */
-.game-controls-panel{
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:85px;
-    z-index:50;
-    display:flex;
-    justify-content: space-between; /* <--- यहाँ 'justify-content: space-between;' सही स्पेलिंग लिखें */
-    align-items:flex-end;
-    padding: 7px 10px;
-    pointer-events:none;
-}
-.next-stop-banner {
-    position: absolute;
-    top: 85px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9));
-    border: 1px solid rgba(255,255,255,0.4);
-    color: #fff;
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    z-index: 30;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    display: none; /* डिफ़ॉल्ट रूप से छुपा हुआ */
-    align-items: center;
-    gap: 6px;
-    animation: pulse 1.5s infinite alternate;
-}
-
 </style>
 </head>
 
 <body id="gameBody">
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay">
+    <div class="loader-title">Varanasi City Bus Seva</div>
+    
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="loading-text" id="loadingText">Loading Resources... 0%</div>
+    
+    <button id="startPlayBtn" onclick="startGame()">▶ PLAY GAME</button>
+</div>
 
 <div class="game-wrapper">
     <div class="game-viewport">
@@ -637,6 +681,62 @@ html,body{
 <audio id="acceleratorAudio" src="accelerator.mp3" preload="auto" loop></audio>
 
 <script>
+/* IMAGE PRELOADER SYSTEM */
+const imageUrls = [
+    "https://i.postimg.cc/htGCBgvt/20260909-174613.png",
+    "https://i.postimg.cc/TYByRJY0/20260908-173416.png",
+    "https://i.ibb.co/WWQHWVgv/IMG-20260908-WA5568.jpg",
+    "https://i.postimg.cc/PqY5fgV9/20260908-195007.png",
+    "https://i.postimg.cc/xTVDnkV6/20260908-195130.png",
+    "https://png.pngtree.com/png-clipart/20231003/original/pngtree-old-building-isolated-3d-png-image_13245036.png",
+    "https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-cozy-suburban-house-small-town-and-white-house-png-image_11908939.png",
+    "https://png.pngtree.com/png-clipart/20240905/original/pngtree-vintage-house-exterior-flat-with-watercolor-style-png-image_15940949.png",
+    "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-ancient-old-house-png-image_13447193.png"
+];
+
+let loadedCount = 0;
+const totalImages = imageUrls.length;
+const progressBar = document.getElementById("progressBar");
+const loadingText = document.getElementById("loadingText");
+const startPlayBtn = document.getElementById("startPlayBtn");
+const progressContainer = document.getElementById("progressContainer");
+
+function preloadImages() {
+    imageUrls.forEach((url) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = imageLoaded;
+        img.onerror = imageLoaded; // किसी कारणवश न लोड होने पर भी प्रोसेस न अटके
+    });
+}
+
+function imageLoaded() {
+    loadedCount++;
+    const percentage = Math.floor((loadedCount / totalImages) * 100);
+    progressBar.style.width = percentage + "%";
+    loadingText.innerText = `Loading Resources... ${percentage}%`;
+
+    if (loadedCount >= totalImages) {
+        setTimeout(() => {
+            progressContainer.style.display = "none";
+            loadingText.style.display = "none";
+            startPlayBtn.style.display = "block";
+        }, 300);
+    }
+}
+
+function startGame() {
+    const loader = document.getElementById("loadingOverlay");
+    loader.style.opacity = "0";
+    loader.style.transition = "opacity 0.5s ease";
+    setTimeout(() => {
+        loader.style.display = "none";
+    }, 500);
+}
+
+// Start Image Preloading when page DOM is ready
+window.addEventListener("DOMContentLoaded", preloadImages);
+
 // DOM ELEMENTS GETTER
 const speedEl = document.getElementById("speed");
 const scoreEl = document.getElementById("score");
@@ -684,7 +784,7 @@ function loadSong(index){
     }
 }
 
-function togglePlay(){
+  function togglePlay(){
     if(audio.paused){
         audio.play().then(() => { playBtn.innerText = "Pause"; }).catch(console.log);
     } else {
@@ -789,7 +889,12 @@ const varanasiStops = [
     "RATHYATRA"
 ];
 
-const housesImages = ["https://png.pngtree.com/png-clipart/20231003/original/pngtree-old-building-isolated-3d-png-image_13245036.png", "https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-cozy-suburban-house-small-town-and-white-house-png-image_11908939.png","https://png.pngtree.com/png-clipart/20240905/original/pngtree-vintage-house-exterior-flat-with-watercolor-style-png-image_15940949.png","https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-ancient-old-house-png-image_13447193.png"];
+const housesImages = [
+    "https://png.pngtree.com/png-clipart/20231003/original/pngtree-old-building-isolated-3d-png-image_13245036.png",
+    "https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-cozy-suburban-house-small-town-and-white-house-png-image_11908939.png",
+    "https://png.pngtree.com/png-clipart/20240905/original/pngtree-vintage-house-exterior-flat-with-watercolor-style-png-image_15940949.png",
+    "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-ancient-old-house-png-image_13447193.png"
+];
 const activeScenery = [];
 const gapBetween = 500;
 
@@ -924,15 +1029,12 @@ function gameLoop(){
 
     const busX = getScreenWidth() * 0.30;
     let upcomingStop = null;
+    let distanceToNextStop = 0;
 
     for(let i = activeScenery.length - 1; i >= 0; i--){
         const item = activeScenery[i];
         item.x -= currentSpeed * 0.10;
         item.element.style.transform = `translateX(${item.x}px)`;
-
-        if(item.isBusStop && item.x > busX - 50 && !upcomingStop){
-            upcomingStop = item.name;
-        }
 
         if(item.isBusStop && !item.hasCollected){
             const distanceToBus = Math.abs(item.x - busX);
@@ -952,8 +1054,26 @@ function gameLoop(){
         }
     }
 
+    // Bus Stop Banner logic
+    for(let i = 0; i < activeScenery.length; i++){
+        const item = activeScenery[i];
+        if(item.isBusStop && item.x > busX){
+            const dist = Math.round((item.x - busX) / 10);
+            if(dist <= 150){
+                upcomingStop = item.name;
+                distanceToNextStop = dist;
+                break;
+            }
+        }
+    }
+
+    const nextStopBanner = document.querySelector('.next-stop-banner');
+
     if(upcomingStop){
-        nextStopNameEl.innerText = upcomingStop;
+        nextStopBanner.style.display = 'flex';
+        nextStopNameEl.innerText = `${upcomingStop} (${distanceToNextStop}m)`;
+    } else {
+        nextStopBanner.style.display = 'none';
     }
 
     wheelRotation += currentSpeed * 0.7;
@@ -999,7 +1119,6 @@ function bindBtn(id, onPress, onRelease){
     });
 }
 
-// Accelerator Button Event Listeners update करें
 bindBtn("btnAccel", 
     () => {
         if(!engineStarted){
@@ -1009,7 +1128,6 @@ bindBtn("btnAccel",
         isAccelerating = true;
         btnAccel.classList.add("accelerating");
         
-        // Accelerator Audio Play करें
         if(acceleratorAudio.paused) {
             acceleratorAudio.currentTime = 0;
             acceleratorAudio.play().catch(console.log);
@@ -1018,8 +1136,6 @@ bindBtn("btnAccel",
     () => {
         isAccelerating = false;
         btnAccel.classList.remove("accelerating");
-        
-        // Accelerator Audio Pause करें
         acceleratorAudio.pause();
     }
 );
@@ -1038,36 +1154,6 @@ bindBtn("btnHorn", () => {
     hornAudio.currentTime = 0;
     hornAudio.play().catch(console.log);
 });
-
-    const busX = getScreenWidth() * 0.30;
-    let upcomingStop = null;
-    let distanceToNextStop = 0;
-
-    // आने वाले Bus Stop की दूरी जांचें
-    for(let i = 0; i < activeScenery.length; i++){
-        const item = activeScenery[i];
-        
-        if(item.isBusStop && item.x > busX){
-            const dist = Math.round((item.x - busX) / 10); // Distance in Meters
-            // 150m (1500px) के दायरे में आने पर Alert दिखाएं
-            if(dist <= 150){
-                upcomingStop = item.name;
-                distanceToNextStop = dist;
-                break;
-            }
-        }
-    }
-
-    const nextStopBanner = document.querySelector('.next-stop-banner');
-
-    // बैनर केवल तब दिखेगा जब बस स्टॉप 150 मीटर या उससे पास हो
-    if(upcomingStop){
-        nextStopBanner.style.display = 'flex';
-        nextStopNameEl.innerText = `${upcomingStop} (${distanceToNextStop}m)`;
-    } else {
-        nextStopBanner.style.display = 'none';
-    }
-
 </script>
 </body>
 </html>
