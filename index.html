@@ -599,18 +599,21 @@ html,body{
         <canvas id="rainCanvas"></canvas>
 
         <!-- SPEED -->
-        <div class="hud-card speed-box">
-            Speed: <span id="speed">0</span> KM/H
-        </div>
+                <!-- MUSIC PLAYER -->
+<div class="hud-card music-card">
+    <div class="controls-row">
+        <button onclick="prevSong()">⏮</button>
+        <button id="playBtn" onclick="togglePlay()">Play</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+</div>
 
-        <!-- MUSIC PLAYER -->
-        <div class="hud-card music-card">
-            <div class="controls-row">
-                <button onclick="prevSong()">⏮</button>
-                <button id="playBtn" onclick="togglePlay()">Play</button>
-                <button onclick="nextSong()">⏭</button>
-            </div>
-        </div>
+<!-- YouTube Video Hide karne ke liye container -->
+<div id="youtube-player" style="display: none;"></div>
+
+<!-- YouTube Iframe API Script Load karein -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 
         <!-- TOGGLE CONTROLS FOR WEATHER & DAY/NIGHT -->
         <div class="env-toggles">
@@ -773,40 +776,63 @@ for(let i=0; i<30; i++){
 }
 
 /* MUSIC PLAYER FUNCTIONALITY */
-const songsData = [{ src: "song.mp3" }];
-let currentSongIndex = 0;
-const audio = document.getElementById("bgMusic");
+ let player;
+let isPlaying = false;
 const playBtn = document.getElementById("playBtn");
 
-function loadSong(index){
-    if(songsData.length > 0){
-        audio.src = songsData[index].src;
-    }
+// YouTube IFrame API ready hone par call hoga
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        playerVars: {
+            'listType': 'playlist',
+            'list': 'PLPsY3qQTccbo', // Aapki Playlist ID
+            'autoplay': 0,
+            'controls': 0
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        }
+    });
 }
 
-  function togglePlay(){
-    if(audio.paused){
-        audio.play().then(() => { playBtn.innerText = "Pause"; }).catch(console.log);
+function onPlayerReady(event) {
+    console.log("YouTube Player Ready");
+}
+
+function onPlayerStateChange(event) {
+    // YT.PlayerState.PLAYING == 1
+    if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        playBtn.innerText = "Pause";
     } else {
-        audio.pause();
+        isPlaying = false;
         playBtn.innerText = "Play";
     }
 }
 
-function nextSong(){
-    currentSongIndex = (currentSongIndex + 1) % songsData.length;
-    loadSong(currentSongIndex);
-    audio.play();
-    playBtn.innerText = "Pause";
+function togglePlay() {
+    if (!player) return;
+    if (isPlaying) {
+        player.pauseVideo();
+    } else {
+        player.playVideo();
+    }
 }
 
-function prevSong(){
-    currentSongIndex = (currentSongIndex - 1 + songsData.length) % songsData.length;
-    loadSong(currentSongIndex);
-    audio.play();
-    playBtn.innerText = "Pause";
+function nextSong() {
+    if (!player) return;
+    player.nextVideo();
 }
-loadSong(currentSongIndex);
+
+function prevSong() {
+    if (!player) return;
+    player.previousVideo();
+    }
+            
+    
 
 /* RAIN TOGGLE SYSTEM */
 let isRaining = false;
