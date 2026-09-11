@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Varanasi City Bus Seva</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#020617;
+    color:white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* GAME WRAPPER */
+.game-wrapper{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100dvh;
+    overflow:hidden;
+}
+
+@media screen and (orientation:portrait){
+    .game-wrapper{
+        width:100dvh;
+        height:100vw;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%) rotate(90deg);
+        transform-origin:center center;
+    }
+}
+
+.game-viewport{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#38bdf8;
+    transition: background 3s ease;
+}
+
+/* SKY & CELESTIAL */
+.sky-bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    background: linear-gradient(to bottom, #0284c7, #38bdf8, #bae6fd);
+    z-index:1;
+    transition: background 3s ease;
+}
+
+.sun, .moon{
+    position:absolute;
+    top:90px;
+    right:12%;
+    border-radius:50%;
+    z-index:2;
+    transition: transform 2s ease, opacity 2s ease;
+}
+
+.sun{
+    width:50px;
+    height:50px;
+    background: radial-gradient(circle, #fff7ed 30%, #fde047 70%, #eab308 100%);
+    box-shadow: 0 0 35px #fde047;
+}
+
+.moon{
+    width:45px;
+    height:45px;
+    background: radial-gradient(circle, #ffffff 40%, #cbd5e1 100%);
+    box-shadow: 0 0 25px rgba(255,255,255,0.8);
+    opacity:0;
+    transform:translateY(30px);
+}
+
+.dusk-mode .sky-bg {
+    background: linear-gradient(to bottom, #4c1d95, #c2410c, #f97316);
+}
+
+.night-mode .sky-bg{
+    background: linear-gradient(to bottom, #020617, #0f172a, #1e293b);
+}
+
+.night-mode .sun{ opacity:0; transform:translateY(30px); }
+.night-mode .moon{ opacity:1; transform:translateY(0); }
+
+/* STARS */
+.stars-container{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:60%;
+    z-index:2;
+    opacity:0;
+    transition:opacity 2s ease;
+    pointer-events:none;
+}
+
+.night-mode .stars-container{ opacity:1; }
+
+.star{
+    position:absolute;
+    background:white;
+    border-radius:50%;
+    animation: blink 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes blink{ from{ opacity:.2; } to{ opacity:1; } }
+
+/* RAIN CANVAS */
+#rainCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* MODERN UI HUD */
+.hud-card{
+    position:absolute;
+    top:10px;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    z-index: 30;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.speed-box{ left:12px; color:#4ade80; }
+.score-box{ right:12px; color:#facc15; }
+
+/* MUSIC PLAYER */
+.music-card{
+    position:absolute;
+    top:10px;
+    left:50%;
+    transform: translateX(-50%);
+    z-index:30;
+}
+
+.controls-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.controls-row button{
+    background: rgba(255,255,255,0.9);
+    border:none;
+    padding:4px 10px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#0f2027;
+    font-size:.7rem;
+}
+
+/* TOGGLE BUTTONS FOR RAIN & TIME */
+.env-toggles {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 30;
+}
+
+.toggle-btn {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.65rem;
+    cursor: pointer;
+}
+
+/* NEXT STOP ALERT DISPLAY */
+.next-stop-banner {
+    position: absolute;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9));
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 30;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.85; }
+    to { opacity: 1; transform: translateX(-50%) scale(1.03); }
+}
+
+/* TOAST MESSAGE */
+.toast-msg{
+    position:absolute;
+    top:120px;
+    left:50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: #22c55e;
+    color:#000;
+    padding:6px 16px;
+    border-radius:20px;
+    font-weight:bold;
+    font-size:.85rem;
+    z-index:60;
+    opacity:0;
+    transition:all .3s ease;
+    pointer-events:none;
+}
+
+.toast-msg.show{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* PARALLAX BG */
+.infinite-bg{
+    position:absolute;
+    bottom:40px;
+    left:0;
+    width:100%;
+    height:160px;
+    background-image: url("https://i.postimg.cc/htGCBgvt/20260909-174613.png");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    z-index:2;
+}
+
+.night-mode .infinite-bg{ filter:brightness(.3); }
+
+.wall-bg{
+    position:absolute;
+    bottom:40px;
+    left:0;
+    width:100%;
+    height:90px;
+    background-image: url("https://i.postimg.cc/TYByRJY0/20260908-173416.png");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    z-index:3;
+}
+
+.night-mode .wall-bg{ filter:brightness(.4); }
+
+.scenery-wrapper{
+    position:absolute;
+    bottom:40px;
+    left:0;
+    width:100%;
+    height:130px;
+    z-index:4;
+    pointer-events:none;
+}
+
+.house-item{
+    position:absolute;
+    bottom:0;
+    width:100px;
+    height:100px;
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position: bottom center;
+}
+
+.night-mode .house-item{ filter:brightness(.35); }
+
+/* BUS STOP UI */
+.bus-stop-container {
+    position: absolute;
+    bottom: 0;
+    width: 120px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.bus-stop-sign {
+    background: #dc2626;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    padding: 2px 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 0.65rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    width: 100%;
+}
+
+.bus-stop-shelter {
+    width: 100px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.2);
+    border-top: 4px solid #2563eb;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #fff;
+    backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding-bottom: 3px;
+}
+
+/* ROAD & SCENE */
+.scene{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height:130px;
+    z-index:5;
+}
+
+.road-bg{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:40px;
+    background-image: url("https://i.ibb.co/WWQHWVgv/IMG-20260908-WA5568.jpg");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    z-index:5;
+}
+
+.night-mode .road-bg{ filter:brightness(.5); }
+
+/* BUS CONTAINER */
+.bus-container{
+    position:absolute;
+    bottom:20px;
+    left:30%;
+    z-index:6;
+    width:220px;
+}
+
+.bus-wrapper{
+    position:relative;
+    width:100%;
+}
+
+.bus-wrapper.engine-vibe{
+    animation: busEngine .15s infinite alternate ease-in-out;
+}
+
+.bus-img{
+    width:100%;
+    height:auto;
+    display:block;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes busEngine{
+    from{ transform:translateY(0); }
+    to{ transform:translateY(-1.5px); }
+}
+
+/* HEADLIGHT - MOVED TO FRONT OF BUS */
+.headlight-beam{
+    position:absolute;
+    bottom:12px;
+    right:-130px;
+    width:140px;
+    height:40px;
+    background: linear-gradient(
+        to right,
+        rgba(255,255,210,.9),
+        rgba(255,255,180,.2),
+        transparent
+    );
+    clip-path: polygon(0% 35%, 100% 0%, 100% 100%, 0% 65%);
+    opacity:0;
+    transition:opacity .8s ease;
+    pointer-events:none;
+    filter:blur(1.5px);
+    z-index: 3;
+}
+
+.night-mode .headlight-beam{ opacity:1; }
+
+/* WHEELS */
+.wheel{
+    position:absolute;
+    width:12.5%;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    z-index:7;
+}
+
+.wheel-back{ bottom:-4px; left:23%; }
+.wheel-front{ bottom:-4px; right:8%; }
+
+/* CONTROLS UI */
+.game-controls-panel{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    height:85px;
+    z-index:50;
+    display:flex;
+    justify-space-between;
+    align-items:flex-end;
+    padding: 7px 10px;
+    pointer-events:none;
+}
+
+.control-group-left, .control-group-right{
+    display:flex;
+    gap:7px;
+    align-items:flex-end;
+    pointer-events:none;
+}
+
+.control-btn{
+    width:60px;
+    height:52px;
+    border-radius:14px;
+    color:white;
+    font-weight:bold;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action:manipulation;
+    pointer-events:auto;
+    transition: transform .08s ease, opacity .15s ease;
+    border: 1px solid rgba(255,255,255,.35);
+    box-shadow: 0 3px 8px rgba(0,0,0,.35);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity:.72;
+    font-size:1.1rem;
+}
+
+.control-btn:active, .control-btn.active{
+    transform: translateY(3px) scale(.96);
+    opacity:1;
+}
+
+.btn-horn{ background: rgba(37,99,235,.35); }
+.btn-brake{ background: rgba(220,38,38,.35); }
+.btn-start{ background: rgba(234,179,8,.38); }
+
+.btn-start.engine-on{
+    background: rgba(34,197,94,.45);
+    border-color: rgba(134,239,172,.7);
+    box-shadow: 0 0 14px rgba(34,197,94,.4);
+}
+
+.btn-accel{
+ 
+    width:78px;
+    background: rgba(22,163,74,.38);
+}
+
+.btn-accel.accelerating{
+    background: rgba(34,197,94,.75);
+    box-shadow: 0 0 18px rgba(34,197,94,.55);
+}
+
+.btn-label{
+    font-size:.52rem;
+    margin-top:2px;
+}
+/* सही CSS */
+.game-controls-panel{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    height:85px;
+    z-index:50;
+    display:flex;
+    justify-content: space-between; /* <--- यहाँ 'justify-content: space-between;' सही स्पेलिंग लिखें */
+    align-items:flex-end;
+    padding: 7px 10px;
+    pointer-events:none;
+}
+.next-stop-banner {
+    position: absolute;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9));
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 30;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    display: none; /* डिफ़ॉल्ट रूप से छुपा हुआ */
+    align-items: center;
+    gap: 6px;
+    animation: pulse 1.5s infinite alternate;
+}
+
+</style>
+</head>
+
+<body id="gameBody">
+
+<div class="game-wrapper">
+    <div class="game-viewport">
+        
+        <div class="sky-bg"></div>
+        <div class="sun"></div>
+        <div class="moon"></div>
+        <div class="stars-container" id="starsContainer"></div>
+        <canvas id="rainCanvas"></canvas>
+
+        <!-- SPEED -->
+        <div class="hud-card speed-box">
+            Speed: <span id="speed">0</span> KM/H
+        </div>
+
+        <!-- MUSIC PLAYER -->
+        <div class="hud-card music-card">
+            <div class="controls-row">
+                <button onclick="prevSong()">⏮</button>
+                <button id="playBtn" onclick="togglePlay()">Play</button>
+                <button onclick="nextSong()">⏭</button>
+            </div>
+        </div>
+
+        <!-- TOGGLE CONTROLS FOR WEATHER & DAY/NIGHT -->
+        <div class="env-toggles">
+            <button class="toggle-btn" id="themeToggleBtn" onclick="toggleDayNight()">🌙 Night Mode</button>
+            <button class="toggle-btn" id="rainToggleBtn" onclick="toggleRain()">🌧️ Rain: OFF</button>
+        </div>
+
+        <!-- NEXT STOP ALERT -->
+        <div class="next-stop-banner">
+            📍 NEXT STOP: <span id="nextStopName">LANKA BHU</span>
+        </div>
+
+        <!-- SCORE -->
+        <div class="hud-card score-box">
+            Score: <span id="score">0</span> PTS
+        </div>
+
+        <div class="toast-msg" id="toastMsg">+50 PTS! Passengers Picked</div>
+
+        <!-- ENVIRONMENT LAYERS -->
+        <div class="infinite-bg" id="mountainBg"></div>
+        <div class="wall-bg" id="wallBg"></div>
+        <div class="scenery-wrapper" id="sceneryWrapper"></div>
+
+        <!-- BUS & ROAD -->
+        <div class="scene">
+            <div class="bus-container" id="bus">
+                <div class="bus-wrapper engine-vibe" id="busWrapper">
+                    <div class="headlight-beam"></div>
+                    <img src="https://i.postimg.cc/PqY5fgV9/20260908-195007.png" class="bus-img" alt="Bus">
+                    <img src="https://i.postimg.cc/xTVDnkV6/20260908-195130.png" class="wheel wheel-back" id="wheel1" alt="Wheel">
+                    <img src="https://i.postimg.cc/xTVDnkV6/20260908-195130.png" class="wheel wheel-front" id="wheel2" alt="Wheel">
+                </div>
+            </div>
+            <div class="road-bg" id="roadBg"></div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="game-controls-panel">
+            <div class="control-group-left">
+                <div class="control-btn btn-horn" id="btnHorn">
+                    📢 <span class="btn-label">HORN</span>
+                </div>
+                <div class="control-btn btn-brake" id="btnBrake">
+                    🛑 <span class="btn-label">BRAKE</span>
+                </div>
+            </div>
+
+            <div class="control-group-right">
+                <div class="control-btn btn-start" id="btnStart">
+                    🔑 <span class="btn-label">START</span>
+                </div>
+                <div class="control-btn btn-accel" id="btnAccel">
+                    ⚡ <span class="btn-label">ACCELERATE</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop></audio>
+<audio id="engineStartAudio" src="https://res.cloudinary.com/dcuaulrax/video/upload/v1789039537/engin-start_euiuwm.mp3" preload="auto"></audio>
+<audio id="engineAudio" src="engine.mp3" preload="auto" loop></audio>
+<audio id="hornAudio" src="https://res.cloudinary.com/dcuaulrax/video/upload/v1789117588/horn_lzuhjx.mp3" preload="auto"></audio>
+<audio id="brakeAudio" src="brake.mp3" preload="auto"></audio>
+<audio id="acceleratorAudio" src="accelerator.mp3" preload="auto" loop></audio>
+
+<script>
+// DOM ELEMENTS GETTER
+const speedEl = document.getElementById("speed");
+const scoreEl = document.getElementById("score");
+const busWrapper = document.getElementById("busWrapper");
+const roadBg = document.getElementById("roadBg");
+const wallBg = document.getElementById("wallBg");
+const mountainBg = document.getElementById("mountainBg");
+const wheel1 = document.getElementById("wheel1");
+const wheel2 = document.getElementById("wheel2");
+const sceneryWrapper = document.getElementById("sceneryWrapper");
+const toastMsg = document.getElementById("toastMsg");
+const btnStart = document.getElementById("btnStart");
+const btnAccel = document.getElementById("btnAccel");
+const nextStopNameEl = document.getElementById("nextStopName");
+
+const engineStartAudio = document.getElementById("engineStartAudio");
+const engineAudio = document.getElementById("engineAudio");
+const hornAudio = document.getElementById("hornAudio");
+const brakeAudio = document.getElementById("brakeAudio");
+const acceleratorAudio = document.getElementById("acceleratorAudio");
+
+/* STARS GENERATION */
+const starsContainer = document.getElementById("starsContainer");
+for(let i=0; i<30; i++){
+    const star = document.createElement("div");
+    star.className = "star";
+    const size = Math.random()*2+1;
+    star.style.width = size+"px";
+    star.style.height = size+"px";
+    star.style.top = Math.random()*90+"%";
+    star.style.left = Math.random()*100+"%";
+    star.style.animationDelay = Math.random()*2+"s";
+    starsContainer.appendChild(star);
+}
+
+/* MUSIC PLAYER FUNCTIONALITY */
+const songsData = [{ src: "song.mp3" }];
+let currentSongIndex = 0;
+const audio = document.getElementById("bgMusic");
+const playBtn = document.getElementById("playBtn");
+
+function loadSong(index){
+    if(songsData.length > 0){
+        audio.src = songsData[index].src;
+    }
+}
+
+function togglePlay(){
+    if(audio.paused){
+        audio.play().then(() => { playBtn.innerText = "Pause"; }).catch(console.log);
+    } else {
+        audio.pause();
+        playBtn.innerText = "Play";
+    }
+}
+
+function nextSong(){
+    currentSongIndex = (currentSongIndex + 1) % songsData.length;
+    loadSong(currentSongIndex);
+    audio.play();
+    playBtn.innerText = "Pause";
+}
+
+function prevSong(){
+    currentSongIndex = (currentSongIndex - 1 + songsData.length) % songsData.length;
+    loadSong(currentSongIndex);
+    audio.play();
+    playBtn.innerText = "Pause";
+}
+loadSong(currentSongIndex);
+
+/* RAIN TOGGLE SYSTEM */
+let isRaining = false;
+const rainCanvas = document.getElementById("rainCanvas");
+const ctx = rainCanvas.getContext("2d");
+const rainToggleBtn = document.getElementById("rainToggleBtn");
+
+function resizeCanvas() {
+    rainCanvas.width = window.innerWidth;
+    rainCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+const raindrops = [];
+for(let i=0; i<100; i++) {
+    raindrops.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        length: Math.random() * 15 + 10,
+        speed: Math.random() * 8 + 10
+    });
+}
+
+function drawRain() {
+    ctx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+    if(isRaining) {
+        ctx.strokeStyle = "rgba(186, 230, 253, 0.6)";
+        ctx.lineWidth = 1.2;
+        for(let i=0; i<raindrops.length; i++) {
+            let p = raindrops[i];
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x - p.speed * 0.2, p.y + p.length);
+            ctx.stroke();
+
+            p.y += p.speed;
+            p.x -= p.speed * 0.2;
+            if (p.y > rainCanvas.height) {
+                p.y = -20;
+                p.x = Math.random() * (window.innerWidth + 100);
+            }
+        }
+    }
+    requestAnimationFrame(drawRain);
+}
+drawRain();
+
+function toggleRain() {
+    isRaining = !isRaining;
+    rainToggleBtn.innerText = isRaining ? "🌧️ Rain: ON" : "🌧️ Rain: OFF";
+}
+
+/* DAY / NIGHT MODE SYSTEM */
+let isNight = false;
+function toggleDayNight(){
+    isNight = !isNight;
+    const body = document.getElementById("gameBody");
+    const btn = document.getElementById("themeToggleBtn");
+    if(isNight){
+        body.classList.add("night-mode");
+        btn.innerText = "☀️ Day Mode";
+    } else {
+        body.classList.remove("night-mode");
+        btn.innerText = "🌙 Night Mode";
+    }
+}
+
+setInterval(() => {
+    toggleDayNight();
+}, 90000);
+
+/* VARANASI STOPS & SCENERY LOGIC */
+const varanasiStops = [
+    "LANKA BHU",
+    "ASSI GHAT",
+    "GODOWLIYAH",
+    "CHOWK",
+    "VARANASI CANTT",
+    "RATHYATRA"
+];
+
+const housesImages = ["https://png.pngtree.com/png-clipart/20231003/original/pngtree-old-building-isolated-3d-png-image_13245036.png", "https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-cozy-suburban-house-small-town-and-white-house-png-image_11908939.png","https://png.pngtree.com/png-clipart/20240905/original/pngtree-vintage-house-exterior-flat-with-watercolor-style-png-image_15940949.png","https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-ancient-old-house-png-image_13447193.png"];
+const activeScenery = [];
+const gapBetween = 500;
+
+function getScreenWidth(){
+    return document.querySelector(".game-viewport").clientWidth;
+}
+
+let spawnX = 100;
+let itemCounter = 0;
+
+function spawnNextObject(xPos){
+    itemCounter++;
+    const container = document.createElement("div");
+    let isStop = false;
+    let stopName = "";
+
+    if(itemCounter % 4 === 0){
+        isStop = true;
+        stopName = varanasiStops[Math.floor(itemCounter / 4) % varanasiStops.length];
+
+        container.className = "bus-stop-container";
+        container.innerHTML = `
+            <div class="bus-stop-sign">🏣 ${stopName}</div>
+            <div class="bus-stop-shelter">
+                <span>🧍</span>
+                <span>🚶</span>
+            </div>
+        `;
+    } else {
+        container.className = "house-item";
+        const randomImg = housesImages[itemCounter % housesImages.length];
+        container.style.backgroundImage = `url('${randomImg}')`;
+    }
+
+    sceneryWrapper.appendChild(container);
+    activeScenery.push({
+        element: container,
+        x: xPos,
+        isBusStop: isStop,
+        hasCollected: false,
+        name: stopName
+    });
+}
+
+while(spawnX < getScreenWidth() + gapBetween * 2){
+    spawnNextObject(spawnX);
+    spawnX += gapBetween;
+}
+
+/* GAME ENGINE & VARIABLES */
+let currentSpeed = 0;
+const maxSpeed = 100;
+let isAccelerating = false;
+let isBraking = false;
+let engineStarted = false;
+let score = 0;
+
+const accelerationPower = 0.40;
+const naturalFriction = 0.18;
+const brakePower = 1.3;
+
+function startEngine(){
+    if(engineStarted) return;
+    engineStarted = true;
+    engineStartAudio.currentTime = 0;
+    engineStartAudio.play().catch(console.log);
+
+    engineStartAudio.onended = function(){
+        if(!engineStarted) return;
+        engineAudio.currentTime = 0;
+        engineAudio.play().catch(console.log);
+    };
+
+    btnStart.classList.add("engine-on");
+    btnStart.innerHTML = `🔋<span class="btn-label">ENGINE ON</span>`;
+    showToast("🚌 Engine Started!");
+}
+
+function stopEngine(){
+    engineStarted = false;
+    isAccelerating = false;
+    isBraking = false;
+    currentSpeed = 0;
+
+    engineStartAudio.pause();
+    engineAudio.pause();
+    acceleratorAudio.pause();
+
+    btnAccel.classList.remove("accelerating");
+    btnStart.classList.remove("engine-on");
+    btnStart.innerHTML = `🔑<span class="btn-label">START</span>`;
+    showToast("⏹ Engine Off");
+}
+
+btnStart.addEventListener("click", () => {
+    if(engineStarted) stopEngine();
+    else startEngine();
+});
+
+function showToast(text){
+    toastMsg.innerText = text;
+    toastMsg.classList.add("show");
+    setTimeout(() => { toastMsg.classList.remove("show"); }, 2000);
+}
+
+/* MAIN GAME LOOP */
+let posRoad = 0, posWall = 0, posMountain = 0, wheelRotation = 0;
+
+function gameLoop(){
+    if(!engineStarted){
+        currentSpeed = 0;
+    } else if(isAccelerating){
+        currentSpeed += accelerationPower;
+        if(currentSpeed > maxSpeed) currentSpeed = maxSpeed;
+    } else if(isBraking){
+        currentSpeed -= brakePower;
+        if(currentSpeed < 0) currentSpeed = 0;
+    } else {
+        currentSpeed -= naturalFriction;
+        if(currentSpeed < 0) currentSpeed = 0;
+    }
+
+    speedEl.innerText = Math.round(currentSpeed);
+
+    posRoad -= currentSpeed * 0.30;
+    posWall -= currentSpeed * 0.10;
+    posMountain -= currentSpeed * 0.025;
+
+    roadBg.style.backgroundPositionX = posRoad + "px";
+    wallBg.style.backgroundPositionX = posWall + "px";
+    mountainBg.style.backgroundPositionX = posMountain + "px";
+
+    const busX = getScreenWidth() * 0.30;
+    let upcomingStop = null;
+
+    for(let i = activeScenery.length - 1; i >= 0; i--){
+        const item = activeScenery[i];
+        item.x -= currentSpeed * 0.10;
+        item.element.style.transform = `translateX(${item.x}px)`;
+
+        if(item.isBusStop && item.x > busX - 50 && !upcomingStop){
+            upcomingStop = item.name;
+        }
+
+        if(item.isBusStop && !item.hasCollected){
+            const distanceToBus = Math.abs(item.x - busX);
+            if(distanceToBus < 60 && currentSpeed < 0.5 && engineStarted){
+                item.hasCollected = true;
+                score += 50;
+                scoreEl.innerText = score;
+                showToast(`🎯 +50 PTS! Passengers Picked at ${item.name}`);
+            }
+        }
+
+        if(item.x < -150){
+            let maxX = 0;
+            activeScenery.forEach(s => { if(s.x > maxX) maxX = s.x; });
+            item.x = maxX + gapBetween;
+            item.hasCollected = false;
+        }
+    }
+
+    if(upcomingStop){
+        nextStopNameEl.innerText = upcomingStop;
+    }
+
+    wheelRotation += currentSpeed * 0.7;
+    wheel1.style.transform = `rotate(${wheelRotation}deg)`;
+    wheel2.style.transform = `rotate(${wheelRotation}deg)`;
+
+    if(currentSpeed > 0.5 && engineStarted){
+        busWrapper.classList.add("engine-vibe");
+    } else {
+        busWrapper.classList.remove("engine-vibe");
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);
+
+/* BUTTON BINDINGS */
+function bindBtn(id, onPress, onRelease){
+    const el = document.getElementById(id);
+    if(!el) return;
+
+    el.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        el.classList.add("active");
+        if(onPress) onPress();
+    }, {passive:false});
+
+    el.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        el.classList.remove("active");
+        if(onRelease) onRelease();
+    }, {passive:false});
+
+    el.addEventListener("mousedown", () => {
+        el.classList.add("active");
+        if(onPress) onPress();
+    });
+
+    el.addEventListener("mouseup", () => {
+        el.classList.remove("active");
+        if(onRelease) onRelease();
+    });
+}
+
+// Accelerator Button Event Listeners update करें
+bindBtn("btnAccel", 
+    () => {
+        if(!engineStarted){
+            showToast("🔑 पहले ENGINE START करें");
+            return;
+        }
+        isAccelerating = true;
+        btnAccel.classList.add("accelerating");
+        
+        // Accelerator Audio Play करें
+        if(acceleratorAudio.paused) {
+            acceleratorAudio.currentTime = 0;
+            acceleratorAudio.play().catch(console.log);
+        }
+    }, 
+    () => {
+        isAccelerating = false;
+        btnAccel.classList.remove("accelerating");
+        
+        // Accelerator Audio Pause करें
+        acceleratorAudio.pause();
+    }
+);
+
+bindBtn("btnBrake", 
+    () => {
+        if(!engineStarted) return;
+        isBraking = true;
+        brakeAudio.currentTime = 0;
+        brakeAudio.play().catch(console.log);
+    }, 
+    () => { isBraking = false; }
+);
+
+bindBtn("btnHorn", () => {
+    hornAudio.currentTime = 0;
+    hornAudio.play().catch(console.log);
+});
+
+    const busX = getScreenWidth() * 0.30;
+    let upcomingStop = null;
+    let distanceToNextStop = 0;
+
+    // आने वाले Bus Stop की दूरी जांचें
+    for(let i = 0; i < activeScenery.length; i++){
+        const item = activeScenery[i];
+        
+        if(item.isBusStop && item.x > busX){
+            const dist = Math.round((item.x - busX) / 10); // Distance in Meters
+            // 150m (1500px) के दायरे में आने पर Alert दिखाएं
+            if(dist <= 150){
+                upcomingStop = item.name;
+                distanceToNextStop = dist;
+                break;
+            }
+        }
+    }
+
+    const nextStopBanner = document.querySelector('.next-stop-banner');
+
+    // बैनर केवल तब दिखेगा जब बस स्टॉप 150 मीटर या उससे पास हो
+    if(upcomingStop){
+        nextStopBanner.style.display = 'flex';
+        nextStopNameEl.innerText = `${upcomingStop} (${distanceToNextStop}m)`;
+    } else {
+        nextStopBanner.style.display = 'none';
+    }
+
+</script>
+</body>
+</html>
