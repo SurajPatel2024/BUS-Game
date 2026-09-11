@@ -36,7 +36,7 @@ html,body{
     justify-content: center;
     align-items: center;
     gap: 15px;
-} 
+}
 
 .loader-title {
     font-size: 1.5rem;
@@ -324,7 +324,7 @@ html,body{
     left:0;
     width:100%;
     height:160px;
-    background-image: url("https://res.cloudinary.com/dcuaulrax/image/upload/v1789124531/20260909_174613_qkqxxt.png");
+    background-image: url("https://i.postimg.cc/htGCBgvt/20260909-174613.png");
     background-repeat: repeat-x;
     background-size: auto 100%;
     z-index:2;
@@ -338,7 +338,7 @@ html,body{
     left:0;
     width:100%;
     height:90px;
-    background-image: url("https://res.cloudinary.com/dcuaulrax/image/upload/v1789124723/20260908_173416_bersnv.png");
+    background-image: url("https://i.postimg.cc/TYByRJY0/20260908-173416.png");
     background-repeat: repeat-x;
     background-size: auto 100%;
     z-index:3;
@@ -571,6 +571,10 @@ html,body{
     font-size:.52rem;
     margin-top:2px;
 }
+.devloper{
+    color:White;
+    
+}
 </style>
 </head>
 
@@ -578,7 +582,9 @@ html,body{
 
 <!-- LOADING OVERLAY -->
 <div id="loadingOverlay">
-    <div class="loader-title">Varanasi City Bus Seva</div>
+    <div class="loader-title">Varanasi City Bus Seva
+    <p class="devloper">DEVELOPER SURAJ PATEL</p>
+    </div>
     
     <div class="progress-container" id="progressContainer">
         <div class="progress-bar" id="progressBar"></div>
@@ -599,7 +605,11 @@ html,body{
         <canvas id="rainCanvas"></canvas>
 
         <!-- SPEED -->
-                <!-- MUSIC PLAYER -->
+        <div class="hud-card speed-box">
+            Speed: <span id="speed">0</span> KM/H
+        </div>
+
+        <!-- MUSIC PLAYER -->
 <div class="hud-card music-card">
     <div class="controls-row">
         <button onclick="prevSong()">⏮</button>
@@ -613,6 +623,7 @@ html,body{
 
 <!-- YouTube Iframe API Script Load karein -->
 <script src="https://www.youtube.com/iframe_api"></script>
+
 
 
         <!-- TOGGLE CONTROLS FOR WEATHER & DAY/NIGHT -->
@@ -643,9 +654,9 @@ html,body{
             <div class="bus-container" id="bus">
                 <div class="bus-wrapper engine-vibe" id="busWrapper">
                     <div class="headlight-beam"></div>
-                    <img src="https://res.cloudinary.com/dcuaulrax/image/upload/v1789124239/20260908_195007_nf8nbo.png" class="bus-img" alt="Bus">
-                    <img src="https://res.cloudinary.com/dcuaulrax/image/upload/v1789124244/20260908_195130_iet1hi.png" class="wheel wheel-back" id="wheel1" alt="Wheel">
-                    <img src="https://res.cloudinary.com/dcuaulrax/image/upload/v1789124244/20260908_195130_iet1hi.png" class="wheel wheel-front" id="wheel2" alt="Wheel">
+                    <img src="https://i.postimg.cc/PqY5fgV9/20260908-195007.png" class="bus-img" alt="Bus">
+                    <img src="https://i.postimg.cc/xTVDnkV6/20260908-195130.png" class="wheel wheel-back" id="wheel1" alt="Wheel">
+                    <img src="https://i.postimg.cc/xTVDnkV6/20260908-195130.png" class="wheel wheel-front" id="wheel2" alt="Wheel">
                 </div>
             </div>
             <div class="road-bg" id="roadBg"></div>
@@ -775,12 +786,12 @@ for(let i=0; i<30; i++){
     starsContainer.appendChild(star);
 }
 
-/* MUSIC PLAYER FUNCTIONALITY */
  let player;
 let isPlaying = false;
 const playBtn = document.getElementById("playBtn");
 
 // YouTube IFrame API ready hone par call hoga
+    // YouTube IFrame API ready hone par call hoga
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('youtube-player', {
         height: '0',
@@ -830,9 +841,8 @@ function nextSong() {
 function prevSong() {
     if (!player) return;
     player.previousVideo();
-    }
-            
-    
+}
+
 
 /* RAIN TOGGLE SYSTEM */
 let isRaining = false;
