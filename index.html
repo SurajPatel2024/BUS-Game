@@ -1128,33 +1128,39 @@ function gameLoop(){
 requestAnimationFrame(gameLoop);
 
 /* BUTTON BINDINGS */
-function bindBtn(id, onPress, onRelease){
+ /* FIXED BUTTON BINDINGS */
+function bindBtn(id, onPress, onRelease) {
     const el = document.getElementById(id);
-    if(!el) return;
+    if (!el) return;
 
-    el.addEventListener("touchstart", (e) => {
-        e.preventDefault();
+    let isPressed = false;
+
+    // Start Action
+    const handlePress = (e) => {
+        if (e.cancelable) e.preventDefault(); // Event cancel tabhi hoga jab zaroorat ho
+        if (isPressed) return;
+        isPressed = true;
         el.classList.add("active");
-        if(onPress) onPress();
-    }, {passive:false});
+        if (onPress) onPress();
+    };
 
-    el.addEventListener("touchend", (e) => {
-        e.preventDefault();
+    // End Action
+    const handleRelease = (e) => {
+        if (e.cancelable) e.preventDefault();
+        if (!isPressed) return;
+        isPressed = false;
         el.classList.remove("active");
-        if(onRelease) onRelease();
-    }, {passive:false});
+        if (onRelease) onRelease();
+    };
 
-    el.addEventListener("mousedown", () => {
-        el.classList.add("active");
-        if(onPress) onPress();
-    });
-
-    el.addEventListener("mouseup", () => {
-        el.classList.remove("active");
-        if(onRelease) onRelease();
-    });
+    // Pointer Events (Mobile Touch + Desktop Mouse dono ke liye perfect hai)
+    el.addEventListener("pointerdown", handlePress);
+    el.addEventListener("pointerup", handleRelease);
+    el.addEventListener("pointerleave", handleRelease);
+    el.addEventListener("pointercancel", handleRelease);
 }
 
+// Button Bindings
 bindBtn("btnAccel", 
     () => {
         if(!engineStarted){
@@ -1190,6 +1196,7 @@ bindBtn("btnHorn", () => {
     hornAudio.currentTime = 0;
     hornAudio.play().catch(console.log);
 });
+    
 </script>
 </body>
 </html>
