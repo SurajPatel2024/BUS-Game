@@ -23,7 +23,7 @@ html,body{
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* LOADING OVERLAY STYLES */
+/* LOADING OVERLAY STYLES (ALWAYS LANDSCAPE) */
 #loadingOverlay {
     position: fixed;
     inset: 0;
@@ -38,16 +38,37 @@ html,body{
     gap: 15px;
 }
 
+/* Force Landscape for Loading Screen on Mobile */
+@media screen and (orientation: portrait) {
+    #loadingOverlay {
+        width: 100vh;
+        height: 100vw;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(90deg);
+        transform-origin: center center;
+    }
+}
+
 .loader-title {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: bold;
     color: #38bdf8;
     text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
     text-align: center;
 }
 
+.devloper {
+    font-size: 0.95rem;
+    color: #facc15;
+    font-weight: bold;
+    margin-top: 6px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+}
+
 .progress-container {
-    width: 260px;
+    width: 280px;
     height: 14px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
@@ -70,7 +91,6 @@ html,body{
     font-weight: 600;
 }
 
-/* PLAY BUTTON (INITIALLY HIDDEN) */
 #startPlayBtn {
     display: none;
     padding: 12px 30px;
@@ -90,7 +110,6 @@ html,body{
     to { transform: scale(1.08); }
 }
 
-/* GAME WRAPPER */
 .game-wrapper{
     position:fixed;
     inset:0;
@@ -119,7 +138,6 @@ html,body{
     transition: background 3s ease;
 }
 
-/* SKY & CELESTIAL */
 .sky-bg{
     position:absolute;
     inset:0;
@@ -155,10 +173,6 @@ html,body{
     transform:translateY(30px);
 }
 
-.dusk-mode .sky-bg {
-    background: linear-gradient(to bottom, #4c1d95, #c2410c, #f97316);
-}
-
 .night-mode .sky-bg{
     background: linear-gradient(to bottom, #020617, #0f172a, #1e293b);
 }
@@ -166,7 +180,6 @@ html,body{
 .night-mode .sun{ opacity:0; transform:translateY(30px); }
 .night-mode .moon{ opacity:1; transform:translateY(0); }
 
-/* STARS */
 .stars-container{
     position:absolute;
     top:0;
@@ -190,7 +203,6 @@ html,body{
 
 @keyframes blink{ from{ opacity:.2; } to{ opacity:1; } }
 
-/* RAIN CANVAS */
 #rainCanvas {
     position: absolute;
     inset: 0;
@@ -217,7 +229,7 @@ html,body{
 }
 
 .speed-box{ left:12px; color:#4ade80; }
-.score-box{ right:12px; color:#facc15; }
+.score-box{ right:12px; color:#facc15; display:flex; gap:12px; }
 
 /* MUSIC PLAYER */
 .music-card{
@@ -226,6 +238,9 @@ html,body{
     left:50%;
     transform: translateX(-50%);
     z-index:30;
+    display:flex;
+    align-items:center;
+    gap:8px;
 }
 
 .controls-row{
@@ -245,7 +260,6 @@ html,body{
     font-size:.7rem;
 }
 
-/* TOGGLE BUTTONS FOR RAIN & TIME */
 .env-toggles {
     position: absolute;
     top: 50px;
@@ -268,7 +282,6 @@ html,body{
     cursor: pointer;
 }
 
-/* NEXT STOP ALERT DISPLAY */
 .next-stop-banner {
     position: absolute;
     top: 85px;
@@ -286,12 +299,35 @@ html,body{
     display: none;
     align-items: center;
     gap: 6px;
-    animation: pulse 1.5s infinite alternate;
 }
 
-@keyframes pulse {
-    from { opacity: 0.85; }
-    to { opacity: 1; transform: translateX(-50%) scale(1.03); }
+/* ACHIEVEMENTS CONTAINER */
+.achievement-box {
+    position: absolute;
+    top: 120px;
+    right: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid #facc15;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: #334155;
+    color: #94a3b8;
+    font-weight: bold;
+}
+.badge.unlocked {
+    background: #eab308;
+    color: #000;
 }
 
 /* TOAST MESSAGE */
@@ -407,6 +443,30 @@ html,body{
     padding-bottom: 3px;
 }
 
+.coin {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: gold;
+    border: 2px solid #b45309;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #78350f;
+    font-size: 0.75rem;
+    z-index: 20;
+    cursor: pointer;
+    animation: bounceCoin 0.6s infinite alternate;
+    pointer-events: auto;
+}
+
+@keyframes bounceCoin {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
 /* ROAD & SCENE */
 .scene{
     position:absolute;
@@ -462,19 +522,13 @@ html,body{
     to{ transform:translateY(-1.5px); }
 }
 
-/* HEADLIGHT - MOVED TO FRONT OF BUS */
 .headlight-beam{
     position:absolute;
     bottom:12px;
     right:-130px;
     width:140px;
     height:40px;
-    background: linear-gradient(
-        to right,
-        rgba(255,255,210,.9),
-        rgba(255,255,180,.2),
-        transparent
-    );
+    background: linear-gradient(to right, rgba(255,255,210,.9), rgba(255,255,180,.2), transparent);
     clip-path: polygon(0% 35%, 100% 0%, 100% 100%, 0% 65%);
     opacity:0;
     transition:opacity .8s ease;
@@ -485,7 +539,6 @@ html,body{
 
 .night-mode .headlight-beam{ opacity:1; }
 
-/* WHEELS */
 .wheel{
     position:absolute;
     width:12.5%;
@@ -571,10 +624,6 @@ html,body{
     font-size:.52rem;
     margin-top:2px;
 }
-.devloper{
-    color:White;
-    
-}
 </style>
 </head>
 
@@ -582,8 +631,9 @@ html,body{
 
 <!-- LOADING OVERLAY -->
 <div id="loadingOverlay">
-    <div class="loader-title">Varanasi City Bus Seva
-    <p class="devloper">DEVELOPER SURAJ PATEL</p>
+    <div class="loader-title">
+        Varanasi City Bus Seva
+        <div class="devloper">DEVELOPER SURAJ PATEL</div>
     </div>
     
     <div class="progress-container" id="progressContainer">
@@ -596,7 +646,7 @@ html,body{
 </div>
 
 <div class="game-wrapper">
-    <div class="game-viewport">
+    <div class="game-viewport" id="gameViewport">
         
         <div class="sky-bg"></div>
         <div class="sun"></div>
@@ -609,22 +659,15 @@ html,body{
             Speed: <span id="speed">0</span> KM/H
         </div>
 
-        <!-- MUSIC PLAYER -->
-<div class="hud-card music-card">
-    <div class="controls-row">
-        <button onclick="prevSong()">⏮</button>
-        <button id="playBtn" onclick="togglePlay()">Play</button>
-        <button onclick="nextSong()">⏭</button>
-    </div>
-</div>
-
-<!-- YouTube Video Hide karne ke liye container -->
-<div id="youtube-player" style="display: none;"></div>
-
-<!-- YouTube Iframe API Script Load karein -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
-
+        <!-- CLOUDINARY CUSTOM MUSIC PLAYER -->
+        <div class="hud-card music-card">
+            <span style="font-size: 0.7rem; color: #38bdf8;">🎵 Music</span>
+            <div class="controls-row">
+                <button onclick="prevSong()">⏮</button>
+                <button id="playBtn" onclick="togglePlay()">Play</button>
+                <button onclick="nextSong()">⏭</button>
+            </div>
+        </div>
 
         <!-- TOGGLE CONTROLS FOR WEATHER & DAY/NIGHT -->
         <div class="env-toggles">
@@ -637,9 +680,17 @@ html,body{
             📍 NEXT STOP: <span id="nextStopName">LANKA BHU</span>
         </div>
 
-        <!-- SCORE -->
+        <!-- SCORE & COINS -->
         <div class="hud-card score-box">
-            Score: <span id="score">0</span> PTS
+            <div>Score: <span id="score">0</span></div>
+            <div>🪙 <span id="coins">0</span></div>
+        </div>
+
+        <!-- ACHIEVEMENTS PANEL -->
+        <div class="achievement-box">
+            🏆 Achievements
+            <span id="badgeAssi" class="badge">🛕 Assi Explorer</span>
+            <span id="badgeMaster" class="badge">🚌 Expert Driver</span>
         </div>
 
         <div class="toast-msg" id="toastMsg">+50 PTS! Passengers Picked</div>
@@ -689,19 +740,44 @@ html,body{
 <!-- AUDIO -->
 <audio id="bgMusic" loop></audio>
 <audio id="engineStartAudio" src="https://res.cloudinary.com/dcuaulrax/video/upload/v1789039537/engin-start_euiuwm.mp3" preload="auto"></audio>
-<audio id="engineAudio" src="engine.mp3" preload="auto" loop></audio>
+<audio id="engineAudio" src="https://res.cloudinary.com/dcuaulrax/video/upload/v1789213403/engine_scu3mk.mp3" preload="auto" ></audio>
 <audio id="hornAudio" src="https://res.cloudinary.com/dcuaulrax/video/upload/v1789117588/horn_lzuhjx.mp3" preload="auto"></audio>
-<audio id="brakeAudio" src="brake.mp3" preload="auto"></audio>
-<audio id="acceleratorAudio" src="accelerator.mp3" preload="auto" loop></audio>
+<audio id="brakeAudio" src=" " preload="auto"></audio>
+<audio id="acceleratorAudio" src=" " preload="auto" ></audio>
 
 <script>
+/* SCREEN WAKE LOCK SYSTEM */
+let wakeLock = null;
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch (err) {
+        console.log("Wake Lock Error", err);
+    }
+}
+
+document.addEventListener('visibilitychange', async () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+        await requestWakeLock();
+    }
+});
+
+/* HAPTIC FEEDBACK (Vibration) */
+function triggerVibration(duration = 40) {
+    if ("vibrate" in navigator) {
+        navigator.vibrate(duration);
+    }
+}
+
 /* IMAGE PRELOADER SYSTEM */
 const imageUrls = [
-    "https://i.postimg.cc/htGCBgvt/20260909-174613.png",
-    "https://i.postimg.cc/TYByRJY0/20260908-173416.png",
+    "https://res.cloudinary.com/dcuaulrax/image/upload/v1789124531/20260909_174613_qkqxxt.png",
+    "https://res.cloudinary.com/dcuaulrax/image/upload/v1789124723/20260908_173416_bersnv.png",
     "https://i.ibb.co/WWQHWVgv/IMG-20260908-WA5568.jpg",
-    "https://i.postimg.cc/PqY5fgV9/20260908-195007.png",
-    "https://i.postimg.cc/xTVDnkV6/20260908-195130.png",
+    "https://res.cloudinary.com/dcuaulrax/image/upload/v1789124239/20260908_195007_nf8nbo.png",
+    "https://res.cloudinary.com/dcuaulrax/image/upload/v1789124244/20260908_195130_iet1hi.png",
     "https://png.pngtree.com/png-clipart/20231003/original/pngtree-old-building-isolated-3d-png-image_13245036.png",
     "https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-cozy-suburban-house-small-town-and-white-house-png-image_11908939.png",
     "https://png.pngtree.com/png-clipart/20240905/original/pngtree-vintage-house-exterior-flat-with-watercolor-style-png-image_15940949.png",
@@ -715,22 +791,29 @@ const loadingText = document.getElementById("loadingText");
 const startPlayBtn = document.getElementById("startPlayBtn");
 const progressContainer = document.getElementById("progressContainer");
 
-function preloadImages() {
+ function preloadImages() {
+    const forceStartTimeout = setTimeout(() => {
+        progressContainer.style.display = "none";
+        loadingText.style.display = "none";
+        startPlayBtn.style.display = "block";
+    }, 4000);
+
     imageUrls.forEach((url) => {
         const img = new Image();
         img.src = url;
-        img.onload = imageLoaded;
-        img.onerror = imageLoaded; // किसी कारणवश न लोड होने पर भी प्रोसेस न अटके
+        img.onload = () => imageLoaded(forceStartTimeout);
+        img.onerror = () => imageLoaded(forceStartTimeout);
     });
 }
 
-function imageLoaded() {
+function imageLoaded(timeoutTimer) {
     loadedCount++;
     const percentage = Math.floor((loadedCount / totalImages) * 100);
     progressBar.style.width = percentage + "%";
     loadingText.innerText = `Loading Resources... ${percentage}%`;
 
     if (loadedCount >= totalImages) {
+        clearTimeout(timeoutTimer);
         setTimeout(() => {
             progressContainer.style.display = "none";
             loadingText.style.display = "none";
@@ -740,6 +823,7 @@ function imageLoaded() {
 }
 
 function startGame() {
+    requestWakeLock();
     const loader = document.getElementById("loadingOverlay");
     loader.style.opacity = "0";
     loader.style.transition = "opacity 0.5s ease";
@@ -748,12 +832,12 @@ function startGame() {
     }, 500);
 }
 
-// Start Image Preloading when page DOM is ready
 window.addEventListener("DOMContentLoaded", preloadImages);
 
 // DOM ELEMENTS GETTER
 const speedEl = document.getElementById("speed");
 const scoreEl = document.getElementById("score");
+const coinsEl = document.getElementById("coins");
 const busWrapper = document.getElementById("busWrapper");
 const roadBg = document.getElementById("roadBg");
 const wallBg = document.getElementById("wallBg");
@@ -786,63 +870,56 @@ for(let i=0; i<30; i++){
     starsContainer.appendChild(star);
 }
 
- let player;
-let isPlaying = false;
+/* SAFE CLOUDINARY MUSIC PLAYER INTEGRATION */
+const cloudinaryPlaylist = [
+    "https://res.cloudinary.com/dcuaulrax/video/upload/v1789216183/song1_jhm4s9.m4a",
+    "https://res.cloudinary.com/dcuaulrax/video/upload/v1789216276/song2_pfh1wl.m4a"
+];
+
+let currentTrackIndex = 0;
+let isMusicPlaying = false;
+const bgMusic = document.getElementById("bgMusic");
 const playBtn = document.getElementById("playBtn");
 
-// YouTube IFrame API ready hone par call hoga
-    // YouTube IFrame API ready hone par call hoga
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('youtube-player', {
-        height: '0',
-        width: '0',
-        playerVars: {
-            'listType': 'playlist',
-            'list': 'PLPsY3qQTccbo', // Aapki Playlist ID
-            'autoplay': 0,
-            'controls': 0
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
+function loadTrack(index) {
+    if(!cloudinaryPlaylist || cloudinaryPlaylist.length === 0) return;
+    bgMusic.src = cloudinaryPlaylist[index];
 }
-
-function onPlayerReady(event) {
-    console.log("YouTube Player Ready");
-}
-
-function onPlayerStateChange(event) {
-    // YT.PlayerState.PLAYING == 1
-    if (event.data === YT.PlayerState.PLAYING) {
-        isPlaying = true;
-        playBtn.innerText = "Pause";
-    } else {
-        isPlaying = false;
-        playBtn.innerText = "Play";
-    }
-}
+loadTrack(0);
 
 function togglePlay() {
-    if (!player) return;
-    if (isPlaying) {
-        player.pauseVideo();
+    if (!cloudinaryPlaylist || cloudinaryPlaylist.length === 0) {
+        showToast("⚠️ प्लेलिस्ट में कोई गाना नहीं है!");
+        return;
+    }
+    if (isMusicPlaying) {
+        bgMusic.pause();
+        isMusicPlaying = false;
+        playBtn.innerText = "Play";
     } else {
-        player.playVideo();
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            playBtn.innerText = "Pause";
+        }).catch(e => {
+            console.log("Audio play error", e);
+            showToast("⚠️ गाना प्ले नहीं हो सका");
+        });
     }
 }
 
 function nextSong() {
-    if (!player) return;
-    player.nextVideo();
+    if (!cloudinaryPlaylist || cloudinaryPlaylist.length === 0) return;
+    currentTrackIndex = (currentTrackIndex + 1) % cloudinaryPlaylist.length;
+    loadTrack(currentTrackIndex);
+    if (isMusicPlaying) bgMusic.play().catch(console.log);
 }
 
 function prevSong() {
-    if (!player) return;
-    player.previousVideo();
+    if (!cloudinaryPlaylist || cloudinaryPlaylist.length === 0) return;
+    currentTrackIndex = (currentTrackIndex - 1 + cloudinaryPlaylist.length) % cloudinaryPlaylist.length;
+    loadTrack(currentTrackIndex);
+    if (isMusicPlaying) bgMusic.play().catch(console.log);
 }
-
 
 /* RAIN TOGGLE SYSTEM */
 let isRaining = false;
@@ -971,7 +1048,8 @@ function spawnNextObject(xPos){
         x: xPos,
         isBusStop: isStop,
         hasCollected: false,
-        name: stopName
+        name: stopName,
+        coinsSpawned: false
     });
 }
 
@@ -980,24 +1058,64 @@ while(spawnX < getScreenWidth() + gapBetween * 2){
     spawnX += gapBetween;
 }
 
-/* GAME ENGINE & VARIABLES */
+/* GAME ENGINE, COIN & ACHIEVEMENT LOGIC */
 let currentSpeed = 0;
 const maxSpeed = 100;
 let isAccelerating = false;
 let isBraking = false;
 let engineStarted = false;
 let score = 0;
+let coinsCollected = 0;
 
 const accelerationPower = 0.40;
 const naturalFriction = 0.18;
 const brakePower = 1.3;
 
+/* ASSI GHAT COIN SPAWN FUNCTION */
+function spawnCoinsAtAssiGhat(stopX) {
+    const viewport = document.getElementById("gameViewport");
+    for(let i = 0; i < 5; i++) {
+        const coin = document.createElement("div");
+        coin.className = "coin";
+        coin.innerText = "🪙";
+        coin.style.left = (stopX + (i * 35)) + "px";
+        coin.style.bottom = "80px";
+        
+        const removeCoin = () => {
+            coinsCollected += 10;
+            coinsEl.innerText = coinsCollected;
+            triggerVibration(30);
+            showToast("🪙 +10 Coins Collected!");
+            checkAchievements();
+            coin.remove();
+        };
+
+        coin.addEventListener("pointerdown", removeCoin);
+        viewport.appendChild(coin);
+
+        setTimeout(() => { if(coin.parentNode) coin.remove(); }, 12000);
+    }
+}
+
+function checkAchievements() {
+    if(coinsCollected >= 10) {
+        document.getElementById("badgeAssi").classList.add("unlocked");
+    }
+    if(coinsCollected >= 100 && score >= 200) {
+        document.getElementById("badgeMaster").classList.add("unlocked");
+    }
+}
+
+/* ENGINE AUDIO LOGIC FIXED */
 function startEngine(){
     if(engineStarted) return;
     engineStarted = true;
+    
+    // Reset and Play Start Audio
     engineStartAudio.currentTime = 0;
     engineStartAudio.play().catch(console.log);
 
+    // Continuous Engine Loop sound after start sound ends
     engineStartAudio.onended = function(){
         if(!engineStarted) return;
         engineAudio.currentTime = 0;
@@ -1015,6 +1133,7 @@ function stopEngine(){
     isBraking = false;
     currentSpeed = 0;
 
+    // Pause all engine related sounds
     engineStartAudio.pause();
     engineAudio.pause();
     acceleratorAudio.pause();
@@ -1026,6 +1145,7 @@ function stopEngine(){
 }
 
 btnStart.addEventListener("click", () => {
+    triggerVibration(50);
     if(engineStarted) stopEngine();
     else startEngine();
 });
@@ -1072,12 +1192,18 @@ function gameLoop(){
         item.x -= currentSpeed * 0.10;
         item.element.style.transform = `translateX(${item.x}px)`;
 
+        if(item.isBusStop && item.name === "ASSI GHAT" && !item.coinsSpawned && item.x < getScreenWidth()){
+            item.coinsSpawned = true;
+            spawnCoinsAtAssiGhat(item.x);
+        }
+
         if(item.isBusStop && !item.hasCollected){
             const distanceToBus = Math.abs(item.x - busX);
             if(distanceToBus < 60 && currentSpeed < 0.5 && engineStarted){
                 item.hasCollected = true;
                 score += 50;
                 scoreEl.innerText = score;
+                checkAchievements();
                 showToast(`🎯 +50 PTS! Passengers Picked at ${item.name}`);
             }
         }
@@ -1087,6 +1213,7 @@ function gameLoop(){
             activeScenery.forEach(s => { if(s.x > maxX) maxX = s.x; });
             item.x = maxX + gapBetween;
             item.hasCollected = false;
+            item.coinsSpawned = false;
         }
     }
 
@@ -1128,23 +1255,21 @@ function gameLoop(){
 requestAnimationFrame(gameLoop);
 
 /* BUTTON BINDINGS */
- /* FIXED BUTTON BINDINGS */
 function bindBtn(id, onPress, onRelease) {
     const el = document.getElementById(id);
     if (!el) return;
 
     let isPressed = false;
 
-    // Start Action
     const handlePress = (e) => {
-        if (e.cancelable) e.preventDefault(); // Event cancel tabhi hoga jab zaroorat ho
+        if (e.cancelable) e.preventDefault();
         if (isPressed) return;
         isPressed = true;
+        triggerVibration(30);
         el.classList.add("active");
         if (onPress) onPress();
     };
 
-    // End Action
     const handleRelease = (e) => {
         if (e.cancelable) e.preventDefault();
         if (!isPressed) return;
@@ -1153,14 +1278,12 @@ function bindBtn(id, onPress, onRelease) {
         if (onRelease) onRelease();
     };
 
-    // Pointer Events (Mobile Touch + Desktop Mouse dono ke liye perfect hai)
     el.addEventListener("pointerdown", handlePress);
     el.addEventListener("pointerup", handleRelease);
     el.addEventListener("pointerleave", handleRelease);
     el.addEventListener("pointercancel", handleRelease);
 }
 
-// Button Bindings
 bindBtn("btnAccel", 
     () => {
         if(!engineStarted){
@@ -1179,6 +1302,11 @@ bindBtn("btnAccel",
         isAccelerating = false;
         btnAccel.classList.remove("accelerating");
         acceleratorAudio.pause();
+        
+        // Ensure continuous engine idle audio remains playing after releasing acceleration
+        if(engineStarted && engineAudio.paused) {
+            engineAudio.play().catch(console.log);
+        }
     }
 );
 
@@ -1196,7 +1324,7 @@ bindBtn("btnHorn", () => {
     hornAudio.currentTime = 0;
     hornAudio.play().catch(console.log);
 });
-    
+
 </script>
 </body>
 </html>
